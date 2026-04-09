@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>R.M.P — الخلطات المعتمدة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--green:#00c389;--dark:#0d1117}
+    body{font-family:'Cairo',sans-serif;background:var(--dark);color:#fff;min-height:100vh;overflow-x:hidden}
+    .bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 15% 15%,#0d2a1a,transparent 50%),radial-gradient(ellipse at 85% 85%,#0a1f3a,transparent 50%),#0d1117}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:float 12s ease-in-out infinite}
+    .o1{width:400px;height:400px;background:rgba(0,195,137,.07);top:-100px;right:-100px}
+    .o2{width:350px;height:350px;background:rgba(26,115,232,.06);bottom:-80px;left:-80px;animation-delay:-5s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-25px)}}
+    @keyframes fadeUp{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes slideDown{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes pulse{0%,100%{box-shadow:0 0 22px rgba(0,195,137,.4)}50%{box-shadow:0 0 36px rgba(0,195,137,.7)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    @keyframes pageIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    /* NAV */
+    nav{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:16px 36px;background:rgba(255,255,255,.03);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.07);animation:slideDown .6s ease}
+    .nav-logo{display:flex;align-items:center;gap:13px;text-decoration:none;cursor:pointer}
+    .logo-badge{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#00c389,#00916a);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#fff;animation:pulse 3s ease-in-out infinite}
+    .nav-title strong{display:block;font-size:16px;font-weight:900;color:#fff}
+    .nav-title span{font-size:12px;color:rgba(255,255,255,.4)}
+    .nav-right{display:flex;align-items:center;gap:10px}
+    .back-btn{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:7px 15px;font-size:13px;color:rgba(255,255,255,.7);font-family:'Cairo',sans-serif;cursor:pointer;font-weight:600;transition:all .25s;border:1px solid rgba(255,255,255,.1)}
+    .back-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+    .back-btn svg{width:15px;height:15px}
+    .nav-name{background:rgba(0,195,137,.1);border:1px solid rgba(0,195,137,.2);border-radius:20px;padding:6px 16px;font-size:13px;color:var(--green);font-weight:700}
+
+    /* BREADCRUMB */
+    .breadcrumb{position:relative;z-index:5;display:flex;align-items:center;gap:8px;padding:16px 36px 0;font-size:13px;color:rgba(255,255,255,.35)}
+    .breadcrumb span{cursor:pointer;transition:color .2s}
+    .breadcrumb span:hover{color:#fff}
+    .breadcrumb .sep{opacity:.3;cursor:default}
+    .breadcrumb .cur{color:rgba(255,255,255,.8);font-weight:700;cursor:default}
+
+    /* ═══════ PAGE: CARDS ═══════ */
+    #page-cards{display:block}
+    #page-formula{display:none}
+
+    .hero{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:40px 36px 28px;animation:fadeUp .7s ease .15s both}
+    .hero h1{font-size:clamp(28px,4vw,50px);font-weight:900;background:linear-gradient(135deg,#fff 40%,rgba(255,255,255,.4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+    .hero h1 em{font-style:normal;background:linear-gradient(135deg,#00c389,#00e5a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{font-size:14px;color:rgba(255,255,255,.35)}
+
+    /* SLIDESHOW */
+    .ss-section{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:20px 36px 80px;animation:fadeUp .7s ease .2s both}
+    .counter-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+    .counter{font-size:13px;color:rgba(255,255,255,.35)}.counter span{color:#00c389;font-weight:800}
+    .dots-nav{display:flex;gap:6px}
+    .dnav{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);cursor:pointer;transition:all .3s}
+    .dnav.active{background:#00c389;width:22px;border-radius:4px}
+
+    .viewport{overflow:hidden;border-radius:24px}
+    .track{display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1);will-change:transform}
+
+    .card{flex:0 0 calc(33.333% - 12px);margin-left:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:28px;cursor:pointer;transition:transform .3s,box-shadow .3s,border-color .3s;user-select:none}
+    .card:first-child{margin-left:0}
+    .card:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.4);border-color:rgba(0,195,137,.2)}
+    .card-dot{width:14px;height:14px;border-radius:50%;margin-bottom:18px}
+    .card-name{font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;line-height:1.3}
+    .card-en{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:13px;font-weight:600}
+    .card-desc{font-size:13px;color:rgba(255,255,255,.42);line-height:1.7;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .card-products{font-size:11px;color:rgba(0,195,137,.65);line-height:1.6;margin-bottom:16px}
+    .card-footer{display:flex;align-items:center;justify-content:space-between}
+    .card-count{background:rgba(0,195,137,.1);border:1px solid rgba(0,195,137,.18);border-radius:20px;padding:4px 12px;font-size:11px;color:#00c389;font-weight:700}
+    .card-arrow{width:32px;height:32px;border-radius:50%;background:rgba(0,195,137,.1);border:1px solid rgba(0,195,137,.2);display:flex;align-items:center;justify-content:center;transition:all .25s}
+    .card:hover .card-arrow{background:rgba(0,195,137,.25);transform:translateX(-4px)}
+    .card-arrow svg{width:14px;height:14px;color:#00c389}
+    .nav-btns{display:flex;gap:12px;margin-top:22px;justify-content:center}
+    .nav-btn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s}
+    .nav-btn:hover{background:rgba(0,195,137,.15);border-color:rgba(0,195,137,.3)}
+    .nav-btn svg{width:18px;height:18px;color:#fff}
+
+    /* ═══════ PAGE: FORMULA ═══════ */
+    .f-hero{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:36px 36px 24px;animation:pageIn .5s ease both}
+    .f-dot{width:16px;height:16px;border-radius:50%;margin-bottom:16px;display:inline-block}
+    .f-title{font-size:clamp(26px,4vw,46px);font-weight:900;background:linear-gradient(135deg,#fff 40%,rgba(255,255,255,.4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px;line-height:1.2}
+    .f-en{font-size:13px;color:rgba(255,255,255,.3);margin-bottom:14px;font-weight:600}
+    .f-desc{font-size:14px;color:rgba(255,255,255,.48);line-height:1.8;max-width:560px;margin-bottom:14px}
+    .f-products{display:flex;gap:8px;flex-wrap:wrap}
+    .ptag{background:rgba(0,195,137,.07);border:1px solid rgba(0,195,137,.15);border-radius:20px;padding:5px 13px;font-size:12px;color:rgba(0,195,137,.8)}
+
+    /* TABLE */
+    .tbl-wrap{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:8px 36px 36px;animation:pageIn .5s ease .1s both}
+    .tbl-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.4);transition:box-shadow .3s,border-color .3s}
+    .tbl-card:hover{box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(0,195,137,.1);border-color:rgba(0,195,137,.14)}
+    .tbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(255,255,255,.025);border-bottom:1px solid rgba(255,255,255,.06)}
+    .tbar-l{display:flex;align-items:center;gap:12px}
+    .dots{display:flex;gap:6px}
+    .dot{width:11px;height:11px;border-radius:50%}
+    .dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+    .tbar-name{font-size:13px;color:rgba(255,255,255,.5);font-weight:700}
+    .live-tag{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green)}
+    .live-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite}
+    .tctl{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,.05);gap:12px;flex-wrap:wrap}
+    .sbox{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:7px 14px;flex:1;max-width:280px;transition:border-color .25s,box-shadow .25s}
+    .sbox:focus-within{border-color:rgba(0,195,137,.4);box-shadow:0 0 0 3px rgba(0,195,137,.08)}
+    .sbox svg{width:14px;height:14px;opacity:.4;flex-shrink:0}
+    .sbox input{background:none;border:none;outline:none;color:#fff;font-family:'Cairo',sans-serif;font-size:13px;width:100%}
+    .sbox input::placeholder{color:rgba(255,255,255,.3)}
+    .rcount{font-size:12px;color:rgba(255,255,255,.3)}.rcount span{color:var(--green);font-weight:700}
+    .tscroll{overflow-x:auto;max-height:480px;overflow-y:auto}
+    .tscroll::-webkit-scrollbar{width:5px;height:5px}
+    .tscroll::-webkit-scrollbar-track{background:rgba(255,255,255,.02)}
+    .tscroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+    .tscroll::-webkit-scrollbar-thumb:hover{background:rgba(0,195,137,.35)}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    thead tr{background:rgba(0,195,137,.08);position:sticky;top:0;z-index:2}
+    thead th{padding:12px 16px;text-align:right;font-weight:800;color:rgba(255,255,255,.75);white-space:nowrap;border-bottom:1px solid rgba(0,195,137,.2);cursor:pointer;user-select:none;transition:color .2s,background .2s}
+    thead th:hover{color:#00c389;background:rgba(0,195,137,.13)}
+    thead th.sorted{color:#00c389}
+    .si{opacity:.3;font-size:10px;margin-right:4px}
+    thead th.sorted .si{opacity:1}
+    tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+    tbody tr:hover{background:rgba(0,195,137,.05)}
+    tbody tr:last-child{border-bottom:none}
+    tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+    tbody tr:nth-child(even):hover{background:rgba(0,195,137,.05)}
+    tbody td{padding:11px 16px;color:rgba(255,255,255,.65);white-space:nowrap;vertical-align:middle}
+    .cbadge{display:inline-block;background:rgba(0,195,137,.12);border:1px solid rgba(0,195,137,.22);color:#00c389;border-radius:7px;padding:3px 10px;font-size:11px;font-weight:800;font-family:monospace}
+    .comp{color:#fff;font-weight:700}.qty{color:#00c389;font-weight:800}.sci{color:rgba(255,255,255,.4);font-style:italic;font-size:12px}
+    .tstate{text-align:center;padding:60px;color:rgba(255,255,255,.3);font-size:14px}
+    .spinner{width:36px;height:36px;border-radius:50%;border:3px solid rgba(0,195,137,.2);border-top-color:#00c389;animation:spin 1s linear infinite;margin:0 auto 14px}
+    #no-res{display:none;text-align:center;padding:40px;color:rgba(255,255,255,.3)}
+
+    /* IMGS */
+    .imgs-section{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:0 36px 80px;animation:pageIn .5s ease .2s both}
+    .imgs-title{font-size:15px;font-weight:800;color:rgba(255,255,255,.5);margin-bottom:14px}
+    .imgs-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center}
+    .img-ph{text-align:center;color:rgba(255,255,255,.15);padding:40px}
+    .img-ph svg{width:44px;height:44px;margin-bottom:10px;display:block;margin:0 auto 10px}
+    .img-ph p{font-size:13px}
+
+    footer{position:relative;z-index:5;text-align:center;padding:22px;color:rgba(255,255,255,.18);font-size:12px;border-top:1px solid rgba(255,255,255,.05)}
+    @media(max-width:900px){.card{flex:0 0 calc(50% - 9px)}}
+    @media(max-width:600px){
+      nav,.breadcrumb,.hero,.ss-section,.f-hero,.tbl-wrap,.imgs-section{padding-right:18px;padding-left:18px}
+      .card{flex:0 0 100%;margin-left:0}
+    }
+  </style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="orb o1"></div><div class="orb o2"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="showCards()">
+    <div class="logo-badge">RMP</div>
+    <div class="nav-title"><strong>Raw Material Production</strong><span>منظومة إدارة الخامات</span></div>
+  </div>
+  <div class="nav-right">
+    <button class="back-btn" id="back-btn" onclick="showCards()" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l7 7-7 7"/></svg>
+      الخلطات المعتمدة
+    </button>
+    <div class="nav-name">Mans</div>
+  </div>
+</nav>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb" id="breadcrumb">
+  <span onclick="goHome()">🏠 الرئيسية</span>
+  <span class="sep">›</span>
+  <span onclick="goFormulas()">📋 الخلطات</span>
+  <span class="sep">›</span>
+  <span class="cur" id="bc-cur">✅ الخلطات المعتمدة</span>
+  <span class="sep" id="bc-sep2" style="display:none">›</span>
+  <span class="cur" id="bc-formula" style="display:none"></span>
+</div>
+
+<!-- ═══ PAGE: CARDS ═══ -->
+<div id="page-cards">
+  <div class="hero">
+    <h1>الخلطات <em>المعتمدة</em></h1>
+    <p>اختر خلطة لعرض تفاصيل الخامات والمكونات</p>
+  </div>
+  <div class="ss-section">
+    <div class="counter-bar">
+      <div class="counter">عرض <span id="vis-count">3</span> من <span>12</span> خلطة</div>
+      <div class="dots-nav" id="dots-nav"></div>
+    </div>
+    <div class="viewport"><div class="track" id="track"></div></div>
+    <div class="nav-btns">
+      <button class="nav-btn" onclick="slide(-1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <button class="nav-btn" onclick="slide(1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: FORMULA ═══ -->
+<div id="page-formula">
+  <div class="f-hero">
+    <div class="f-dot" id="f-dot"></div>
+    <div class="f-title" id="f-title"></div>
+    <div class="f-en" id="f-en"></div>
+    <div class="f-desc" id="f-desc"></div>
+    <div class="f-products" id="f-products"></div>
+  </div>
+  <div class="tbl-wrap">
+    <div class="tbl-card">
+      <div class="tbar">
+        <div class="tbar-l">
+          <div class="dots"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div></div>
+          <span class="tbar-name" id="tbar-name"></span>
+        </div>
+        <div class="live-tag">يتحدث تلقائياً من Drive</div>
+      </div>
+      <div class="tctl">
+        <div class="sbox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="search" placeholder="ابحث...">
+        </div>
+        <div class="rcount">الصفوف: <span id="count">—</span></div>
+      </div>
+      <div class="tscroll">
+        <div class="tstate" id="tstate"><div class="spinner"></div>جاري تحميل البيانات...</div>
+        <table id="tbl" style="display:none">
+          <thead><tr>
+            <th onclick="cs(0)"><span class="si">⇅</span>Code</th>
+            <th onclick="cs(1)"><span class="si">⇅</span>Component</th>
+            <th onclick="cs(2)"><span class="si">⇅</span>Qty (kg)</th>
+            <th onclick="cs(3)"><span class="si">⇅</span>Scientific Name</th>
+            <th onclick="cs(4)"><span class="si">⇅</span>Supplier</th>
+            <th onclick="cs(5)"><span class="si">⇅</span>Grade</th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div id="no-res">🔍 لا توجد نتائج</div>
+      </div>
+    </div>
+  </div>
+  <div class="imgs-section">
+    <div class="imgs-title">🖼️ صور الخلطة</div>
+    <div class="imgs-card" id="imgs-card">
+      <div class="img-ph">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <p>الصور ستُضاف قريباً</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>R.M.P — Raw Material Production &nbsp;|&nbsp; الخلطات المعتمدة © 2026</footer>
+
+<script>
+const SHEET_ID = "1X4E8tUp_9vqRho73xEVgRRgG209S0giZ";
+const META     = {"خلطه ابيض": {"en": "PVC White", "desc": "خلطة PVC أبيض مخصصة لتصنيع المواسير والتوصيلات البيضاء عالية الجودة، تتميز بثباتها الحراري ومقاومتها للأشعة فوق البنفسجية.", "products": "مواسير PVC أبيض · تجهيزات ضغط · بروفيلات بيضاء", "dot": "#00c389"}, "خلطه ضغط رمادي": {"en": "PVC Gray Pressure", "desc": "خلطة PVC رمادي لتصنيع مواسير الضغط العالي، مصممة لتحمّل الضغوط الشديدة والتغيرات الحرارية في شبكات المياه.", "products": "مواسير ضغط رمادي · تجهيزات الشبكات · محابس", "dot": "#90a4ae"}, "خلطة ضغط أسود": {"en": "PVC Black Pressure", "desc": "خلطة PVC أسود بمقاومة عالية للأشعة فوق البنفسجية، مثالية لمواسير الضغط الخارجية وشبكات الري.", "products": "مواسير ضغط أسود · شبكات ري · مواسير صرف", "dot": "#546e7a"}, "خلطه حبيبات طري": {"en": "Soft PVC Pellets", "desc": "خلطة PVC طري لإنتاج حبيبات مرنة تُستخدم في تصنيع المنتجات المطاطية والأختام والأغطية المرنة.", "products": "حبيبات PVC طري · أختام مرنة · أغطية وغلافات", "dot": "#ffc107"}, "خلطه كاوتش جوانات": {"en": "Rubber Gaskets", "desc": "خلطة مطاط طبيعي وصناعي مخصصة لتصنيع الجوانات والأختام المانعة للتسرب في وصلات المواسير.", "products": "جوانات مانعة للتسرب · أختام وصلات · حلقات مطاطية", "dot": "#e91e63"}, "خلطة EPDM": {"en": "EPDM Compound", "desc": "خلطة EPDM عالية الأداء مقاومة للأوزون والأشعة فوق البنفسجية والظروف الجوية القاسية، مثالية للتطبيقات الخارجية.", "products": "جوانات EPDM · أختام خارجية · عوازل", "dot": "#3f51b5"}, "خلطة PPH": {"en": "PPH Compound", "desc": "خلطة بولي بروبيلين هوموبوليمر ذات صلابة عالية ومقاومة ممتازة للمواد الكيميائية، مخصصة للتطبيقات الصناعية.", "products": "مواسير PPH صناعية · خزانات · تجهيزات كيميائية", "dot": "#009688"}, "خلطة PPR": {"en": "PPR Compound", "desc": "خلطة بولي بروبيلين عشوائي مخصصة لمواسير المياه الساخنة والباردة، تتميز بمقاومتها الحرارية العالية.", "products": "مواسير PPR · تجهيزات مياه ساخنة · نظام تدفئة", "dot": "#2196f3"}, "خلطه الماده اللاصقه": {"en": "Adhesive Compound", "desc": "خلطة مادة لاصقة متخصصة لربط وتوصيل مواسير PVC، توفر قوة التصاق عالية ومقاومة للرطوبة والضغط.", "products": "غراء PVC · مادة لاصقة مواسير · سمنت وصلات", "dot": "#ff9800"}, "جوانات TPE": {"en": "TPE Gaskets", "desc": "خلطة مطاط مثيلين حراري مرنة وقابلة لإعادة المعالجة، تُستخدم في تصنيع جوانات عالية الأداء.", "products": "جوانات TPE · أختام مرنة · حلقات توصيل", "dot": "#9c27b0"}, "عبوات ماده لاصقة": {"en": "Adhesive Containers", "desc": "خلطة مخصصة لتصنيع عبوات وأكواب المادة اللاصقة، متوافقة كيميائياً مع المواد اللاصقة المختلفة.", "products": "عبوات غراء · أكواب بلاستيك · حاويات لاصقة", "dot": "#607d8b"}, "عمود فرشه الماده اللاصقة": {"en": "Adhesive Brush Handle", "desc": "خلطة بلاستيك صلب لتصنيع مقبض فرشاة المادة اللاصقة، متميزة بمقاومتها للمذيبات والمواد الكيميائية.", "products": "مقابض فرش · أعواد تطبيق · أدوات لاصقة", "dot": "#795548"}};
+const NAMES    = ["خلطه ابيض", "خلطه ضغط رمادي", "خلطة ضغط أسود", "خلطه حبيبات طري", "خلطه كاوتش جوانات", "خلطة EPDM", "خلطة PPH", "خلطة PPR", "خلطه الماده اللاصقه", "جوانات TPE", "عبوات ماده لاصقة", "عمود فرشه الماده اللاصقة"];
+const COUNTS   = {"خلطه ابيض": 12, "خلطه ضغط رمادي": 8, "خلطة ضغط أسود": 8, "خلطه حبيبات طري": 5, "خلطه كاوتش جوانات": 12, "خلطة EPDM": 9, "خلطة PPH": 5, "خلطة PPR": 3, "خلطه الماده اللاصقه": 7, "جوانات TPE": 3, "عبوات ماده لاصقة": 2, "عمود فرشه الماده اللاصقة": 2};
+const KEYS     = ['Code','Component','Quantity (kg)','Scientific Name','supplier name','grade'];
+
+// ── SLIDESHOW ──
+const track    = document.getElementById('track');
+const dotsNav  = document.getElementById('dots-nav');
+let cur = 0;
+
+function perPage(){ return window.innerWidth<600?1:window.innerWidth<900?2:3; }
+function pages(){ return Math.ceil(NAMES.length/perPage()); }
+
+NAMES.forEach(name=>{
+  const m=META[name];
+  const div=document.createElement('div');
+  div.className='card';
+  div.innerHTML=`
+    <div class="card-dot" style="background:${m.dot};box-shadow:0 0 10px ${m.dot}"></div>
+    <div class="card-name">${name}</div>
+    <div class="card-en">${m.en}</div>
+    <div class="card-desc">${m.desc}</div>
+    <div class="card-products">${m.products}</div>
+    <div class="card-footer">
+      <span class="card-count">${COUNTS[name]||'—'} خامة</span>
+      <span class="card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l7 7-7 7"/></svg></span>
+    </div>`;
+  div.onclick=()=>openFormula(name);
+  track.appendChild(div);
+});
+
+for(let i=0;i<pages();i++){
+  const d=document.createElement('div');
+  d.className='dnav'+(i===0?' active':'');
+  d.onclick=()=>goTo(i);
+  dotsNav.appendChild(d);
+}
+
+function goTo(p){
+  cur=Math.max(0,Math.min(p,pages()-1));
+  const pp=perPage();
+  const cardW=track.querySelector('.card').offsetWidth+18;
+  track.style.transform=`translateX(${cur*pp*cardW}px)`;
+  document.querySelectorAll('.dnav').forEach((d,i)=>d.classList.toggle('active',i===cur));
+}
+function slide(dir){goTo(cur+dir);}
+goTo(0);
+
+// ── NAVIGATION ──
+function showCards(){
+  document.getElementById('page-cards').style.display='block';
+  document.getElementById('page-formula').style.display='none';
+  document.getElementById('back-btn').style.display='none';
+  document.getElementById('bc-cur').textContent='✅ الخلطات المعتمدة';
+  document.getElementById('bc-sep2').style.display='none';
+  document.getElementById('bc-formula').style.display='none';
+  document.title='R.M.P — الخلطات المعتمدة';
+}
+
+function goHome(){window.location.href='../index.html';}
+function goFormulas(){window.location.href='index.html';}
+
+let allRows=[], sortIdx=-1, sortDir=1, activeSheet='';
+
+function openFormula(name){
+  document.getElementById('page-cards').style.display='none';
+  document.getElementById('page-formula').style.display='block';
+  document.getElementById('back-btn').style.display='flex';
+  document.getElementById('bc-cur').textContent='✅ الخلطات المعتمدة';
+  document.getElementById('bc-sep2').style.display='inline';
+  document.getElementById('bc-formula').style.display='inline';
+  document.getElementById('bc-formula').textContent=name;
+  document.title='R.M.P — '+name;
+
+  const m=META[name]||{};
+  document.getElementById('f-title').textContent=name;
+  document.getElementById('f-en').textContent=m.en||'';
+  document.getElementById('f-desc').textContent=m.desc||'';
+  document.getElementById('tbar-name').textContent='📊 '+name;
+  const dot=document.getElementById('f-dot');
+  dot.style.background=m.dot||'#00c389';
+  dot.style.boxShadow='0 0 14px '+(m.dot||'#00c389');
+  document.getElementById('f-products').innerHTML=
+    (m.products||'').split('·').map(p=>`<span class="ptag">${p.trim()}</span>`).join('');
+
+  // Reset table
+  allRows=[]; sortIdx=-1; sortDir=1;
+  document.getElementById('search').value='';
+  document.getElementById('tstate').innerHTML='<div class="spinner"></div>جاري تحميل البيانات...';
+  document.getElementById('tstate').style.display='block';
+  document.getElementById('tbl').style.display='none';
+  document.getElementById('no-res').style.display='none';
+  document.getElementById('count').textContent='—';
+
+  // Scroll to top
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  // Load data
+  if(activeSheet===name) return;
+  activeSheet=name;
+  // gviz always calls google.visualization.Query.setResponse — we intercept it
+  window.google = window.google||{};
+  window.google.visualization = window.google.visualization||{};
+  window.google.visualization.Query = window.google.visualization.Query||{};
+  window.google.visualization.Query.setResponse = function(data){ window.__cb(data); };
+  const s=document.createElement('script');
+  s.src='https://docs.google.com/spreadsheets/d/'+SHEET_ID+
+        '/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(name)+'&t='+Date.now();
+  s.onerror=()=>{document.getElementById('tstate').textContent='⚠️ تعذّر تحميل البيانات';};
+  document.head.appendChild(s);
+}
+
+window.__cb=function(data){
+  if(!data||!data.table){document.getElementById('tstate').textContent='⚠️ تعذّر تحميل البيانات';return;}
+  const cols=data.table.cols, rows=data.table.rows||[];
+  const find=lbl=>cols.findIndex(c=>(c.label||c.id||'').trim().toLowerCase()===lbl.toLowerCase());
+  const idxMap=KEYS.map(k=>{
+    let i=find(k);
+    if(i===-1&&k==='supplier name') i=find('supplier');
+    if(i===-1&&k==='Quantity (kg)') i=find('quantity');
+    return i;
+  });
+  allRows=rows.map(r=>
+    idxMap.map(ci=>{
+      if(ci===-1)return'';
+      const cell=r.c&&r.c[ci];
+      if(!cell||cell.v===null||cell.v===undefined)return'';
+      return cell.f!==undefined?String(cell.f):String(cell.v);
+    })
+  ).filter(r=>r.some(c=>c));
+  if(!allRows.length&&rows.length){
+    const vi=cols.map((_,i)=>i).filter(i=>rows.some(r=>r.c&&r.c[i]&&r.c[i].v!=null));
+    allRows=rows.map(r=>vi.slice(0,6).map(ci=>{
+      const cell=r.c&&r.c[ci];
+      if(!cell||cell.v===null)return'';
+      return cell.f!==undefined?String(cell.f):String(cell.v);
+    })).filter(r=>r.some(c=>c));
+  }
+  renderTable(allRows);
+};
+
+function renderTable(rows){
+  document.getElementById('tstate').style.display='none';
+  document.getElementById('tbl').style.display=rows.length?'table':'none';
+  document.getElementById('no-res').style.display=rows.length?'none':'block';
+  document.getElementById('count').textContent=rows.length;
+  document.querySelectorAll('thead th').forEach((th,i)=>{
+    th.classList.toggle('sorted',i===sortIdx);
+    th.querySelector('.si').textContent=i===sortIdx?(sortDir===1?'↑':'↓'):'⇅';
+  });
+  document.getElementById('tbody').innerHTML=rows.map(r=>`
+    <tr>
+      <td><span class="cbadge">${r[0]||'—'}</span></td>
+      <td class="comp">${r[1]||'—'}</td>
+      <td class="qty">${r[2]?r[2]+' kg':'—'}</td>
+      <td class="sci">${r[3]||'—'}</td>
+      <td>${(r[4]||'—').replace(/\n/g,'<br>')}</td>
+      <td>${(r[5]||'—').replace(/\n/g,'<br>')}</td>
+    </tr>`).join('');
+}
+
+function cs(i){
+  sortDir=(sortIdx===i)?sortDir*-1:1; sortIdx=i;
+  const sorted=[...allRows].sort((a,b)=>{
+    const x=a[i]||'',y=b[i]||'';
+    const nx=parseFloat(x),ny=parseFloat(y);
+    if(!isNaN(nx)&&!isNaN(ny))return(nx-ny)*sortDir;
+    return x.localeCompare(y,'ar')*sortDir;
+  });
+  renderTable(sorted);
+}
+
+document.getElementById('search').addEventListener('input',function(){
+  const q=this.value.toLowerCase();
+  renderTable(q?allRows.filter(r=>r.some(c=>c.toLowerCase().includes(q))):allRows);
+  sortIdx=-1;
+});
+</script>
+</body>
+</html>
