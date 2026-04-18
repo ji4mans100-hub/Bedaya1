@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bedaya — Videos</title>
+  <link rel="stylesheet" href="../../assets/css/shared.css" />
+  <style>
+    .videos-wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:24px 20px 80px;
+      position:relative;
+      z-index:2;
+    }
+
+    .videos-hero{
+      margin-bottom:28px;
+    }
+
+    .videos-hero h2{
+      font-size:32px;
+      margin-bottom:10px;
+      color:#fff;
+    }
+
+    .videos-hero p{
+      color:rgba(255,255,255,.65);
+      line-height:1.8;
+      max-width:760px;
+    }
+
+    .videos-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:18px;
+    }
+
+    .video-card{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:22px;
+      padding:20px;
+      box-shadow:0 16px 40px rgba(0,0,0,.18);
+      transition:.25s ease;
+      backdrop-filter:blur(8px);
+    }
+
+    .video-card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(0,195,137,.35);
+      box-shadow:0 22px 46px rgba(0,0,0,.26);
+    }
+
+    .video-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:rgba(0,195,137,.12);
+      color:#00c389;
+      border:1px solid rgba(0,195,137,.22);
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:12px;
+      font-weight:700;
+      margin-bottom:14px;
+    }
+
+    .video-card h3{
+      color:#fff;
+      font-size:20px;
+      margin-bottom:10px;
+      line-height:1.5;
+    }
+
+    .video-card p{
+      color:rgba(255,255,255,.65);
+      line-height:1.8;
+      font-size:14px;
+      min-height:76px;
+      margin-bottom:18px;
+    }
+
+    .video-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .play-btn,
+    .disabled-btn{
+      border:none;
+      border-radius:14px;
+      padding:12px 16px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s ease;
+      font-family:inherit;
+    }
+
+    .play-btn{
+      background:#00c389;
+      color:#08110e;
+      flex:1;
+    }
+
+    .play-btn:hover{
+      filter:brightness(1.08);
+      transform:translateY(-1px);
+    }
+
+    .disabled-btn{
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.45);
+      cursor:not-allowed;
+      flex:1;
+    }
+
+    .video-state{
+      font-size:12px;
+      color:rgba(255,255,255,.45);
+      white-space:nowrap;
+    }
+
+    .video-modal{
+      position:fixed;
+      inset:0;
+      background:rgba(5,8,12,.76);
+      backdrop-filter:blur(10px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:20px;
+    }
+
+    .video-modal.active{
+      display:flex;
+    }
+
+    .video-modal-box{
+      width:min(100%,1000px);
+      background:#0f1720;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:24px;
+      box-shadow:0 30px 80px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+
+    .video-modal-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background:rgba(255,255,255,.03);
+    }
+
+    .video-modal-top h3{
+      color:#fff;
+      font-size:16px;
+      margin:0;
+    }
+
+    .video-close{
+      width:42px;
+      height:42px;
+      border:none;
+      border-radius:12px;
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      font-size:20px;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .video-close:hover{
+      background:rgba(255,255,255,.14);
+    }
+
+    .video-frame-wrap{
+      position:relative;
+      width:100%;
+      padding-top:56.25%;
+      background:#000;
+      overflow:hidden;
+    }
+
+    .video-frame-wrap iframe{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+      z-index:1;
+    }
+
+    .loading-overlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      background:rgba(0,0,0,.45);
+      color:#fff;
+      z-index:2;
+      transition:.25s ease;
+    }
+
+    .loading-overlay.hidden{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+
+    .spinner{
+      width:52px;
+      height:52px;
+      border:4px solid rgba(255,255,255,.18);
+      border-top-color:#00c389;
+      border-radius:50%;
+      animation:spin .9s linear infinite;
+    }
+
+    .loading-text{
+      font-size:14px;
+      color:rgba(255,255,255,.82);
+    }
+
+    @keyframes spin{
+      to{
+        transform:rotate(360deg);
+      }
+    }
+
+    @media (max-width:768px){
+      .videos-hero h2{
+        font-size:26px;
+      }
+
+      .video-card p{
+        min-height:auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animated"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <nav>
+    <a class="brand-pill" href="../../index.html">
+      <div class="nav-title">
+        <strong>Bedaya</strong>
+        <span>Owned by Mansour Atia</span>
+      </div>
+    </a>
+    <div class="nav-status">Mansour Atia</div>
+  </nav>
+
+  <div class="breadcrumb">
+    <a href="../../index.html">الرئيسية</a>
+    <span>›</span>
+    <a href="../index.html">الخلطات</a>
+    <span>›</span>
+    <span class="current">فيديوهات الخلطات</span>
+  </div>
+
+  <section class="videos-wrap">
+    <div class="videos-hero">
+      <h2>فيديوهات الخلطات</h2>
+      <p>
+        صفحة مخصصة لعرض فيديوهات التوثيق الخاصة بالخلطات. المتاح حالياً يمكن تشغيله مباشرة من داخل الصفحة،
+        والباقي جاهز للربط لاحقاً بعد رفع الفيديوهات على Google Drive.
+      </p>
+    </div>
+
+    <div class="videos-grid" id="videosGrid"></div>
+  </section>
+
+  <div class="video-modal" id="videoModal">
+    <div class="video-modal-box">
+      <div class="video-modal-top">
+        <h3 id="videoModalTitle">تشغيل الفيديو</h3>
+        <button class="video-close" id="closeVideoBtn">×</button>
+      </div>
+      <div class="video-frame-wrap" id="videoFrameWrap">
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="spinner"></div>
+          <div class="loading-text">جاري تحميل الفيديو...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Bedaya © 2026 — Owned by Mansour Atia</footer>
+
+  <script>
+    const videosData = [
+      {
+        title: "خلطة أبيض",
+        description: "فيديو يوضح تجهيز وتشغيل خلطة PVC الأبيض وخطوات التحضير الأساسية.",
+        fileId: "1M5WLROKCejUOBLMthQCv67SCxg7Yu14j",
+        available: true
+      },
+      {
+        title: "خلطة ضغط رمادي",
+        description: "فيديو يوضح تجهيز خلطة الضغط الرمادي وخطوات التشغيل بشكل مبسط.",
+        fileId: "",
+        available: false
+      },
+      {
+        title: "خلطة ضغط أسود",
+        description: "فيديو توثيقي لخلطة الضغط الأسود وطريقة تجهيزها داخل خط الإنتاج.",
+        fileId: "",
+        available: false
+      },
+      {
+        title: "خلطة حبيبات طري",
+        description: "فيديو بسيط يوضح خطوات تحضير وتشغيل خلطة الحبيبات الطرية.",
+        fileId: "",
+        available: false
+      },
+      {
+        title: "خلطة كاوتش جوانات",
+        description: "فيديو توثيقي لخلطة كاوتش الجوانات ومراحل الخلط والتجهيز.",
+        fileId: "",
+        available: false
+      },
+      {
+        title: "EPDM",
+        description: "فيديو يوضح تجهيز خلطة EPDM ومراحل التحضير بشكل مختصر.",
+        fileId: "",
+        available: false
+      },
+      {
+        title: "PPH",
+        description: "فيديو يوضح خطوات خلط وتجهيز خامة PPH داخل النظام.",
+        fileId: "1vSgvktaQ0xLVsAUmVvUEN6-AIcpADSBK",
+        available: true
+      },
+      {
+        title: "PPR",
+        description: "فيديو يوضح خطوات خلط وتجهيز خامة PPR بشكل مبسط.",
+        fileId: "",
+        available: false
+      },
+      {
+        title: "خلطة لاصق",
+        description: "فيديو يوضح تجهيز خلطة اللاصق وآلية التحضير الأساسية.",
+        fileId: "",
+        available: false
+      },
+      {
+        title: "TPE",
+        description: "فيديو توثيقي لخلطة TPE ومراحل التشغيل المرتبطة بها.",
+        fileId: "",
+        available: false
+      },
+      {
+        title: "خلطة علب",
+        description: "فيديو بسيط يوضح تجهيز خلطة العلب وخطوات التحضير.",
+        fileId: "",
+        available: false
+      },
+      {
+        title: "خلطة هاند الفرشة",
+        description: "فيديو يوضح تجهيز خلطة هاند الفرشة ومراحل التشغيل الأساسية.",
+        fileId: "",
+        available: false
+      }
+    ];
+
+    const videosGrid = document.getElementById("videosGrid");
+    const videoModal = document.getElementById("videoModal");
+    const videoFrameWrap = document.getElementById("videoFrameWrap");
+    const videoModalTitle = document.getElementById("videoModalTitle");
+    const closeVideoBtn = document.getElementById("closeVideoBtn");
+
+    function getDrivePreviewLink(fileId){
+      return `https://drive.google.com/file/d/${fileId}/preview`;
+    }
+
+    function openVideoModal(video){
+      if (!video.fileId) return;
+
+      videoModalTitle.textContent = video.title;
+
+      videoFrameWrap.innerHTML = `
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="spinner"></div>
+          <div class="loading-text">جاري تحميل الفيديو...</div>
+        </div>
+        <iframe
+          id="videoIframe"
+          src="${getDrivePreviewLink(video.fileId)}"
+          allow="autoplay"
+          allowfullscreen
+        ></iframe>
+      `;
+
+      videoModal.classList.add("active");
+      document.body.style.overflow = "hidden";
+
+      const iframe = document.getElementById("videoIframe");
+      const loadingOverlay = document.getElementById("loadingOverlay");
+
+      iframe.addEventListener("load", function(){
+        setTimeout(() => {
+          loadingOverlay.classList.add("hidden");
+        }, 700);
+      });
+    }
+
+    function closeVideoModal(){
+      videoModal.classList.remove("active");
+      videoFrameWrap.innerHTML = `
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="spinner"></div>
+          <div class="loading-text">جاري تحميل الفيديو...</div>
+        </div>
+      `;
+      document.body.style.overflow = "";
+    }
+
+    videosData.forEach(video => {
+      const card = document.createElement("div");
+      card.className = "video-card";
+
+      card.innerHTML = `
+        <div class="video-badge">🎬 فيديو خلطة</div>
+        <h3>${video.title}</h3>
+        <p>${video.description}</p>
+        <div class="video-actions">
+          ${
+            video.available
+              ? `<button class="play-btn">تشغيل الفيديو</button>`
+              : `<button class="disabled-btn" disabled>غير متاح حالياً</button>`
+          }
+          <span class="video-state">${video.available ? "جاهز للتشغيل" : "قريباً"}</span>
+        </div>
+      `;
+
+      if (video.available) {
+        card.querySelector(".play-btn").addEventListener("click", () => openVideoModal(video));
+      }
+
+      videosGrid.appendChild(card);
+    });
+
+    closeVideoBtn.addEventListener("click", closeVideoModal);
+
+    videoModal.addEventListener("click", function(e){
+      if (e.target === videoModal) closeVideoModal();
+    });
+
+    document.addEventListener("keydown", function(e){
+      if (e.key === "Escape" && videoModal.classList.contains("active")) {
+        closeVideoModal();
+      }
+    });
+  </script>
+</body>
+</html>

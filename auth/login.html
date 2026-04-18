@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bedaya Login</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Arial,sans-serif;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,#0d1117,#0b1f1a);
+      color:#fff;
+      padding:20px;
+    }
+    .card{
+      width:100%;
+      max-width:420px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:24px;
+      padding:32px 24px;
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    h1{
+      font-size:28px;
+      margin-bottom:10px;
+      text-align:center;
+    }
+    p{
+      text-align:center;
+      color:rgba(255,255,255,.65);
+      margin-bottom:24px;
+      line-height:1.7;
+    }
+    input{
+      width:100%;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      outline:none;
+      margin-bottom:16px;
+      font-size:15px;
+    }
+    button{
+      width:100%;
+      border:none;
+      border-radius:14px;
+      padding:14px 16px;
+      background:#00c389;
+      color:#08110e;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .error{
+      display:none;
+      margin-top:14px;
+      text-align:center;
+      color:#ff8585;
+      font-size:14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Bedaya</h1>
+    <p>أدخل كلمة المرور للدخول إلى الموقع</p>
+
+    <form id="loginForm">
+      <input id="password" type="password" placeholder="كلمة المرور" required />
+      <button type="submit">دخول</button>
+      <div class="error" id="errorMsg">كلمة المرور غير صحيحة</div>
+    </form>
+  </div>
+
+  <script>
+    const SITE_PASSWORD = "4766";
+    const AUTH_KEY = "bedaya_auth_ok";
+
+    if (sessionStorage.getItem(AUTH_KEY) === "true") {
+      window.location.href = "../index.html";
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      const pass = document.getElementById("password").value;
+      const errorMsg = document.getElementById("errorMsg");
+
+      if (pass === SITE_PASSWORD) {
+        sessionStorage.setItem(AUTH_KEY, "true");
+        window.location.href = "../index.html";
+      } else {
+        errorMsg.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
