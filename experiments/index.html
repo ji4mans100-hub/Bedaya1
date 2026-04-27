@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bedaya - Experiments</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --green:#00c389;--green2:#00e5a0;--dark:#0d1117;--dark2:#111827;--card:rgba(255,255,255,.04);
+      --line:rgba(255,255,255,.08);--muted:rgba(255,255,255,.58);--soft:rgba(255,255,255,.35);--danger:#ff6b6b;
+      --warn:#f7b731;--ok:#00c389;--wait:#5dade2;
+    }
+    body{font-family:'Cairo',sans-serif;background:var(--dark);color:#fff;min-height:100vh;overflow-x:hidden}
+    .bg{position:fixed;inset:0;z-index:0;background:
+      radial-gradient(ellipse at 15% 15%, rgba(0,195,137,.16), transparent 38%),
+      radial-gradient(ellipse at 85% 85%, rgba(26,115,232,.12), transparent 38%),
+      linear-gradient(180deg,#0b1118,#0d1117 42%,#0b1016)}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:float 14s ease-in-out infinite}
+    .o1{width:420px;height:420px;right:-140px;top:-90px;background:rgba(0,195,137,.08)}
+    .o2{width:380px;height:380px;left:-120px;bottom:-80px;background:rgba(56,139,253,.08);animation-delay:-6s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-26px)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+    nav,.breadcrumb,.hero,.stats,.section,.folders,footer{position:relative;z-index:5;max-width:1240px;margin:auto;padding-inline:36px}
+    nav{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:16px;background:rgba(255,255,255,.03);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07);animation:fadeUp .5s ease}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+    .brand-pill{display:flex;align-items:center;padding:10px 18px;border-radius:18px;background:linear-gradient(135deg,rgba(0,195,137,.22),rgba(0,145,106,.22));border:1px solid rgba(0,195,137,.28);box-shadow:0 10px 30px rgba(0,195,137,.12),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(14px)}
+    .brand strong{display:block;font-size:18px;font-weight:900;letter-spacing:.2px}.brand span{display:block;margin-top:3px;font-size:11px;color:rgba(255,255,255,.78);font-weight:600}
+    .nav-name{background:rgba(0,195,137,.1);border:1px solid rgba(0,195,137,.2);border-radius:20px;padding:6px 16px;font-size:13px;color:var(--green);font-weight:700}
+    .breadcrumb{display:flex;align-items:center;gap:8px;padding-top:16px;font-size:13px;color:rgba(255,255,255,.35);animation:fadeUp .6s ease .05s both}
+    .breadcrumb a{color:inherit;text-decoration:none}.breadcrumb .cur{color:rgba(255,255,255,.85);font-weight:700}
+    .hero{padding-top:34px;padding-bottom:14px;animation:fadeUp .6s ease .1s both}
+    .hero h1{font-size:clamp(28px,4vw,52px);font-weight:900;line-height:1.15;background:linear-gradient(135deg,#fff 40%,rgba(255,255,255,.45));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px}
+    .hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--green),var(--green2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{max-width:820px;color:var(--muted);font-size:14px;line-height:1.9}
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border-radius:14px;text-decoration:none;font-size:13px;font-weight:800;border:1px solid rgba(255,255,255,.12);transition:.25s}
+    .btn-primary{background:linear-gradient(135deg,rgba(0,195,137,.22),rgba(0,195,137,.12));color:#fff;border-color:rgba(0,195,137,.3)}
+    .btn-secondary{background:rgba(255,255,255,.04);color:#fff}
+    .btn:hover{transform:translateY(-2px)}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding-top:20px;padding-bottom:8px;animation:fadeUp .6s ease .15s both}
+    .stat{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+    .stat .label{font-size:12px;color:var(--soft);margin-bottom:8px}.stat .value{font-size:28px;font-weight:900;color:#fff}.stat .note{font-size:12px;color:rgba(0,195,137,.8);margin-top:8px}
+    .section{padding-top:22px;padding-bottom:8px;animation:fadeUp .65s ease .18s both}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .section-head h2{font-size:18px;color:#fff;font-weight:900}.section-head p{font-size:13px;color:var(--muted)}
+    .charts{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.35)}
+    .card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)}
+    .card-top h3{font-size:14px;font-weight:800;color:#fff}.card-top span{font-size:12px;color:var(--soft)}
+    .chart-box{padding:18px;height:320px}
+    .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+    .search,.filter{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:10px 14px}
+    .search{flex:1;min-width:240px}.search input,.filter select{background:none;border:none;outline:none;color:#fff;font-family:'Cairo',sans-serif;font-size:13px;width:100%}
+    .search input::placeholder{color:rgba(255,255,255,.3)} .filter select option{color:#111}
+    .table-wrap{background:var(--card);border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.35)}
+    .table-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:rgba(255,255,255,.025);border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap}
+    .table-head .title{font-size:14px;color:#fff;font-weight:800}.table-head .count{font-size:12px;color:var(--soft)}
+    .table-scroll{overflow:auto;max-height:620px}
+    .table-scroll::-webkit-scrollbar{width:6px;height:6px}.table-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    thead tr{background:rgba(0,195,137,.08);position:sticky;top:0;z-index:3}
+    th,td{padding:12px 14px;text-align:right;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top}
+    th{font-weight:800;color:rgba(255,255,255,.78);cursor:pointer;user-select:none}
+    th:hover{background:rgba(0,195,137,.12);color:var(--green)}
+    tbody tr:nth-child(even){background:rgba(255,255,255,.015)} tbody tr:hover{background:rgba(0,195,137,.05)}
+    td{color:rgba(255,255,255,.72)}
+    .badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800;border:1px solid transparent}
+    .ok{background:rgba(0,195,137,.12);color:#00d394;border-color:rgba(0,195,137,.22)}
+    .bad{background:rgba(255,107,107,.12);color:#ff8b8b;border-color:rgba(255,107,107,.22)}
+    .wait{background:rgba(93,173,226,.12);color:#7dc4ff;border-color:rgba(93,173,226,.22)}
+    .neutral{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.1)}
+    .file-pill{display:inline-block;padding:4px 10px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:11px;color:#fff}
+    .folders{padding-top:24px;padding-bottom:72px}
+    .folder-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .folder{display:block;text-decoration:none;color:#fff;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:24px;transition:.28s;box-shadow:0 24px 64px rgba(0,0,0,.28)}
+    .folder:hover{transform:translateY(-6px);border-color:rgba(0,195,137,.25);box-shadow:0 30px 70px rgba(0,0,0,.35)}
+    .folder-icon{width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(0,195,137,.18),rgba(0,195,137,.08));border:1px solid rgba(0,195,137,.18);margin-bottom:18px}
+    .folder-name{font-size:20px;font-weight:900;line-height:1.35;margin-bottom:8px}
+    .folder-desc{font-size:13px;color:var(--muted);line-height:1.8;min-height:50px}
+    .folder-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:18px;font-size:12px;color:rgba(0,195,137,.82);font-weight:800}
+    .state{padding:52px 18px;text-align:center;color:var(--muted)}
+    .spinner{width:40px;height:40px;border:3px solid rgba(0,195,137,.18);border-top-color:var(--green);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    footer{padding-top:20px;padding-bottom:24px;border-top:1px solid rgba(255,255,255,.05);text-align:center;color:rgba(255,255,255,.2);font-size:12px}
+    @media (max-width:1100px){.stats,.folder-grid,.charts{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:700px){nav,.breadcrumb,.hero,.stats,.section,.folders,footer{padding-inline:18px}.stats,.folder-grid,.charts{grid-template-columns:1fr}.hero-actions{flex-direction:column}.btn{width:100%}.table-scroll{max-height:520px}.folder-name{font-size:18px}}
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+
+  <nav>
+    <a class="brand" href="../index.html">
+      <div class="brand-pill">
+        <div>
+          <strong>Bedaya</strong>
+          <span>Owned by Mansour Atia</span>
+        </div>
+      </div>
+    </a>
+    <div class="nav-name">Experiments</div>
+  </nav>
+
+  <div class="breadcrumb">
+    <a href="../index.html">الرئيسية</a>
+    <span>/</span>
+    <span class="cur">Experiments</span>
+  </div>
+
+  <section class="hero">
+    <h1>Experiments <em>Dashboard</em></h1>
+    <p>لوحة متابعة ديناميكية لنتائج التجارب، تعرض الإحصاءات والشارتات والبيانات المحدثة مباشرة من ملف المتابعة، مع وصول سريع إلى فولدرات التقارير الأساسية.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://docs.google.com/spreadsheets/d/1aNCdXPh-5ew0rmE7tWyDM1Rl95JoWhJSCJpGW24x4Vc/edit?usp=drive_link" target="_blank" rel="noopener">Open Source Sheet</a>
+      <a class="btn btn-secondary" href="#folders">Go to Reports Folders</a>
+    </div>
+  </section>
+
+  <section class="stats" id="stats">
+    <div class="stat"><div class="label">إجمالي التجارب</div><div class="value" id="st-total">—</div><div class="note">عدد السجلات المعروضة</div></div>
+    <div class="stat"><div class="label">النتائج الناجحة</div><div class="value" id="st-success">—</div><div class="note">تجارب بنتيجة ناجحة</div></div>
+    <div class="stat"><div class="label">الخامات النشطة</div><div class="value" id="st-materials">—</div><div class="note">عدد الخامات المختلفة</div></div>
+    <div class="stat"><div class="label">آخر تحديث بالبيانات</div><div class="value" id="st-latest">—</div><div class="note">أحدث تاريخ موجود بالشيت</div></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Live Charts</h2>
+        <p>الشارتات تتحدث تلقائيًا حسب البيانات الموجودة في الشيت.</p>
+      </div>
+    </div>
+    <div class="charts">
+      <div class="card"><div class="card-top"><h3>Results Distribution</h3><span>توزيع النتائج</span></div><div class="chart-box"><canvas id="chartResults"></canvas></div></div>
+      <div class="card"><div class="card-top"><h3>Materials Distribution</h3><span>توزيع الخامات</span></div><div class="chart-box"><canvas id="chartMaterials"></canvas></div></div>
+      <div class="card"><div class="card-top"><h3>Experiment Types</h3><span>أنواع التجارب</span></div><div class="chart-box"><canvas id="chartTypes"></canvas></div></div>
+      <div class="card"><div class="card-top"><h3>Timeline</h3><span>تطور عدد التجارب</span></div><div class="chart-box"><canvas id="chartTimeline"></canvas></div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2>Experiments Sheet</h2>
+        <p>عرض احترافي لبيانات ملف المتابعة مع البحث والترتيب والتصفية.</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="search"><input id="searchInput" type="text" placeholder="ابحث في رقم التجربة أو الخامة أو نوع التجربة أو الملاحظات" /></div>
+      <div class="filter"><select id="materialFilter"><option value="">كل الخامات</option></select></div>
+      <div class="filter"><select id="typeFilter"><option value="">كل أنواع التجارب</option></select></div>
+      <div class="filter"><select id="resultFilter"><option value="">كل النتائج</option></select></div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-head">
+        <div class="title">Experiments Data</div>
+        <div class="count">Rows: <span id="rowCount">0</span></div>
+      </div>
+      <div class="table-scroll">
+        <div class="state" id="tableState"><div class="spinner"></div>جاري تحميل البيانات من الشيت...</div>
+        <table id="dataTable" style="display:none">
+          <thead>
+            <tr>
+              <th data-key="id">رقم التجربة</th>
+              <th data-key="date">التاريخ</th>
+              <th data-key="material">الخامة</th>
+              <th data-key="type">نوع التجربة</th>
+              <th data-key="result">النتيجة</th>
+              <th data-key="notes">ملاحظات</th>
+              <th data-key="rd">بيانات التجربة</th>
+              <th data-key="pellet">ظروف التحبيب</th>
+              <th data-key="inject">ظروف الحقن</th>
+              <th data-key="qc">اختبارات الجودة</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="folders" id="folders">
+    <div class="section-head">
+      <div>
+        <h2>Reports Folders</h2>
+        <p>الوصول السريع إلى فولدرات التقارير الأساسية داخل قسم التجارب.</p>
+      </div>
+    </div>
+    <div class="folder-grid">
+      <a class="folder" href="quality-response-v3.html">
+        <div class="folder-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></div>
+        <div class="folder-name">quality response</div>
+        <div class="folder-desc">ردود الجودة وتقارير QC ونتائج التقييم والاعتماد.</div>
+        <div class="folder-foot"><span>Open Folder</span><span>ردود الجودة</span></div>
+      </a>
+      <a class="folder" href="injection-reports-v3.html">
+        <div class="folder-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></div>
+        <div class="folder-name">injection reports</div>
+        <div class="folder-desc">تقارير الحقن وملفات FA الخاصة بمرحلة التشغيل.</div>
+        <div class="folder-foot"><span>Open Folder</span><span>تقارير الحقن</span></div>
+      </a>
+      <a class="folder" href="experiment-orders-v3.html">
+        <div class="folder-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></div>
+        <div class="folder-name">experiment orders</div>
+        <div class="folder-desc">ملفات R&D وأوامر التجارب ومرفقات المتابعة الفنية.</div>
+        <div class="folder-foot"><span>Open Folder</span><span>أوامر التجارب</span></div>
+      </a>
+      <a class="folder" href="bulletize-reports-v3.html">
+        <div class="folder-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></div>
+        <div class="folder-name">bulletize reports</div>
+        <div class="folder-desc">تقارير التحبيب داخل هذا الفولدر، وإن لم تظهر ملفات فمعناه أنه لا توجد PDF حالياً.</div>
+        <div class="folder-foot"><span>Open Folder</span><span>تقارير التحبيب</span></div>
+      </a>
+    </div>
+  </section>
+
+  <footer>Bedaya Experiments Dashboard — Live data from Google Sheets</footer>
+
+  <script>
+    const SHEET_ID = '1aNCdXPh-5ew0rmE7tWyDM1Rl95JoWhJSCJpGW24x4Vc';
+        const stateEl = document.getElementById('tableState');
+    const tableEl = document.getElementById('dataTable');
+    const bodyEl = document.getElementById('tableBody');
+    const rowCountEl = document.getElementById('rowCount');
+    const searchInput = document.getElementById('searchInput');
+    const materialFilter = document.getElementById('materialFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const resultFilter = document.getElementById('resultFilter');
+    let allRows = [];
+    let currentRows = [];
+    let sortKey = 'id';
+    let sortDir = 1;
+    let charts = [];
+
+    function parseGoogleDate(v){
+      if(!v) return null;
+      if(typeof v === 'string' && v.startsWith('Date(')){
+        const m = v.match(/Date\((\d+),(\d+),(\d+)\)/);
+        if(!m) return null;
+        return new Date(Number(m[1]), Number(m[2]), Number(m[3]));
+      }
+      return null;
+    }
+    function formatDate(d){
+      if(!d) return '';
+      return new Intl.DateTimeFormat('en-GB').format(d);
+    }
+    function safe(cell){
+      if(!cell || cell.v === null || cell.v === undefined) return '';
+      return cell.f !== undefined ? String(cell.f).trim() : String(cell.v).trim();
+    }
+    function normalize(s){ return String(s || '').trim(); }
+    function badgeClass(val){
+      const t = normalize(val);
+      if(t.includes('ناجحة')) return 'ok';
+      if(t.includes('غير مقبولة')) return 'bad';
+      if(t.includes('انتظار')) return 'wait';
+      return 'neutral';
+    }
+    function fillSelect(select, values){
+      const first = select.options[0].outerHTML;
+      select.innerHTML = first + values.map(v => `<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`).join('');
+    }
+    function getCounts(rows, key){
+      const map = new Map();
+      rows.forEach(r => {
+        const k = normalize(r[key]) || 'غير محدد';
+        map.set(k, (map.get(k) || 0) + 1);
+      });
+      return [...map.entries()].sort((a,b)=>b[1]-a[1]);
+    }
+    function updateStats(rows){
+      const total = rows.length;
+      const success = rows.filter(r => normalize(r.result).includes('ناجحة')).length;
+      const materials = new Set(rows.map(r => normalize(r.material)).filter(Boolean)).size;
+      const latestDate = rows.map(r => r.dateObj).filter(Boolean).sort((a,b)=>b-a)[0];
+      document.getElementById('st-total').textContent = total.toLocaleString('en-US');
+      document.getElementById('st-success').textContent = success.toLocaleString('en-US');
+      document.getElementById('st-materials').textContent = materials.toLocaleString('en-US');
+      document.getElementById('st-latest').textContent = latestDate ? formatDate(latestDate) : '—';
+    }
+    function makeChart(ctx, config){
+      const ch = new Chart(ctx, config);
+      charts.push(ch);
+      return ch;
+    }
+    function destroyCharts(){ charts.forEach(c => c.destroy()); charts = []; }
+    function renderCharts(rows){
+      destroyCharts();
+      const results = getCounts(rows, 'result');
+      const materials = getCounts(rows, 'material').slice(0, 8);
+      const types = getCounts(rows, 'type');
+      const timelineMap = new Map();
+      rows.forEach(r => {
+        if(!r.dateObj) return;
+        const key = `${r.dateObj.getFullYear()}-${String(r.dateObj.getMonth()+1).padStart(2,'0')}`;
+        timelineMap.set(key, (timelineMap.get(key) || 0) + 1);
+      });
+      const timeline = [...timelineMap.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+
+      makeChart(document.getElementById('chartResults'), {
+        type:'doughnut',
+        data:{labels:results.map(x=>x[0]),datasets:[{data:results.map(x=>x[1]),backgroundColor:['#00c389','#ff6b6b','#5dade2','#f7b731','#9b59b6','#95a5a6'],borderWidth:0}]},
+        options:{maintainAspectRatio:false,plugins:{legend:{labels:{color:'#dfe6ee',font:{family:'Cairo'}}}}}
+      });
+      makeChart(document.getElementById('chartMaterials'), {
+        type:'bar',
+        data:{labels:materials.map(x=>x[0]),datasets:[{label:'Count',data:materials.map(x=>x[1]),backgroundColor:'rgba(0,195,137,.72)',borderRadius:10}]},
+        options:{maintainAspectRatio:false,indexAxis:'y',scales:{x:{ticks:{color:'#cfd8df'},grid:{color:'rgba(255,255,255,.08)'}},y:{ticks:{color:'#dfe6ee',font:{family:'Cairo'}},grid:{display:false}}},plugins:{legend:{display:false}}}
+      });
+      makeChart(document.getElementById('chartTypes'), {
+        type:'pie',
+        data:{labels:types.map(x=>x[0]),datasets:[{data:types.map(x=>x[1]),backgroundColor:['#00c389','#4dabf7','#f7b731','#ff6b6b','#9b59b6','#2ecc71','#e67e22'],borderWidth:0}]},
+        options:{maintainAspectRatio:false,plugins:{legend:{labels:{color:'#dfe6ee',font:{family:'Cairo'}}}}}
+      });
+      makeChart(document.getElementById('chartTimeline'), {
+        type:'line',
+        data:{labels:timeline.map(x=>x[0]),datasets:[{label:'Experiments',data:timeline.map(x=>x[1]),fill:true,tension:.35,borderColor:'#00c389',backgroundColor:'rgba(0,195,137,.12)',pointBackgroundColor:'#00c389',pointRadius:4}]},
+        options:{maintainAspectRatio:false,scales:{x:{ticks:{color:'#dfe6ee'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#dfe6ee'},grid:{color:'rgba(255,255,255,.06)'}}},plugins:{legend:{labels:{color:'#dfe6ee',font:{family:'Cairo'}}}}}
+      });
+    }
+    function renderTable(rows){
+      rowCountEl.textContent = rows.length.toLocaleString('en-US');
+      if(!rows.length){
+        tableEl.style.display = 'none';
+        stateEl.style.display = 'block';
+        stateEl.innerHTML = 'لا توجد نتائج مطابقة للفلاتر الحالية.';
+        return;
+      }
+      stateEl.style.display = 'none';
+      tableEl.style.display = 'table';
+      bodyEl.innerHTML = rows.map(r => `
+        <tr>
+          <td><span class="file-pill">${r.id || '—'}</span></td>
+          <td>${r.date || '—'}</td>
+          <td>${r.material || '—'}</td>
+          <td>${r.type || '—'}</td>
+          <td><span class="badge ${badgeClass(r.result)}">${r.result || '—'}</span></td>
+          <td>${r.notes || '—'}</td>
+          <td>${r.rd ? `<span class="file-pill">${r.rd}</span>` : '—'}</td>
+          <td>${r.pellet ? `<span class="file-pill">${r.pellet}</span>` : '—'}</td>
+          <td>${r.inject ? `<span class="file-pill">${r.inject}</span>` : '—'}</td>
+          <td>${r.qc ? `<span class="file-pill">${r.qc}</span>` : '—'}</td>
+        </tr>`).join('');
+    }
+    function sortRows(rows){
+      return [...rows].sort((a,b)=>{
+        let x = a[sortKey], y = b[sortKey];
+        if(sortKey === 'id') return ((Number(x)||0) - (Number(y)||0)) * sortDir;
+        if(sortKey === 'date') return (((a.dateObj||0) - (b.dateObj||0)) || 0) * sortDir;
+        x = normalize(x); y = normalize(y);
+        return x.localeCompare(y, 'ar') * sortDir;
+      });
+    }
+    function applyFilters(){
+      const q = normalize(searchInput.value).toLowerCase();
+      const m = materialFilter.value;
+      const t = typeFilter.value;
+      const r = resultFilter.value;
+      let filtered = allRows.filter(row => {
+        const text = [row.id,row.date,row.material,row.type,row.result,row.notes,row.rd,row.pellet,row.inject,row.qc].join(' ').toLowerCase();
+        return (!q || text.includes(q)) && (!m || row.material === m) && (!t || row.type === t) && (!r || row.result === r);
+      });
+      filtered = sortRows(filtered);
+      currentRows = filtered;
+      renderTable(filtered);
+      updateStats(filtered.length ? filtered : allRows);
+      renderCharts(filtered.length ? filtered : allRows);
+    }
+    function loadData(){
+      try{
+        const script = document.createElement('script');
+        const cleanup = () => {
+          if (script.parentNode) script.parentNode.removeChild(script);
+          window.google = window.google || {};
+          window.google.visualization = window.google.visualization || {};
+          window.google.visualization.Query = window.google.visualization.Query || {};
+        };
+
+        window.google = window.google || {};
+        window.google.visualization = window.google.visualization || {};
+        window.google.visualization.Query = window.google.visualization.Query || {};
+        window.google.visualization.Query.setResponse = function(json){
+          try{
+            const rows = (json.table && json.table.rows) || [];
+            allRows = rows.map(r => {
+              const c = r.c || [];
+              const dateObj = parseGoogleDate(c[1]?.v);
+              return {
+                id: safe(c[0]),
+                date: c[1]?.f || formatDate(dateObj),
+                dateObj,
+                material: safe(c[2]),
+                type: safe(c[3]),
+                result: safe(c[4]),
+                notes: safe(c[5]),
+                rd: safe(c[6]),
+                pellet: safe(c[7]),
+                inject: safe(c[8]),
+                qc: safe(c[9])
+              };
+            }).filter(r => r.id || r.material || r.type || r.result);
+
+            fillSelect(materialFilter, [...new Set(allRows.map(r=>r.material).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar')));
+            fillSelect(typeFilter, [...new Set(allRows.map(r=>r.type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar')));
+            fillSelect(resultFilter, [...new Set(allRows.map(r=>r.result).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar')));
+            cleanup();
+            applyFilters();
+          }catch(err){
+            console.error('Experiments parse error:', err);
+            cleanup();
+            tableEl.style.display = 'none';
+            stateEl.style.display = 'block';
+            stateEl.innerHTML = 'تم الوصول للشيت لكن حصل خطأ أثناء قراءة البيانات.';
+          }
+        };
+
+        script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent('Sheet1')}&t=${Date.now()}`;
+        script.onerror = function(){
+          cleanup();
+          tableEl.style.display = 'none';
+          stateEl.style.display = 'block';
+          stateEl.innerHTML = 'تعذر تحميل بيانات الشيت مباشرة. تأكد من أن الملف Public وأن اسم الشيت صحيح.';
+        };
+        document.head.appendChild(script);
+      }catch(err){
+        console.error('Experiments load error:', err);
+        tableEl.style.display = 'none';
+        stateEl.style.display = 'block';
+        stateEl.innerHTML = 'حدث خطأ أثناء تحميل بيانات الشيت.';
+      }
+    }
+
+    [searchInput, materialFilter, typeFilter, resultFilter].forEach(el => el.addEventListener('input', applyFilters));
+    [materialFilter, typeFilter, resultFilter].forEach(el => el.addEventListener('change', applyFilters));
+    document.querySelectorAll('th[data-key]').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.key;
+        sortDir = sortKey === key ? sortDir * -1 : 1;
+        sortKey = key;
+        applyFilters();
+      });
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
